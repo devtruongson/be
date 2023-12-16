@@ -51,9 +51,14 @@ export class TrainingSectorService {
 
         switch (witResponse['intents'][0].name) {
             case IModelWitAI.daoTao: {
+                console.log(
+                    witResponse['entities']['e_nghanh_dao_tao:e_nghanh_dao_tao']?.filter(
+                        (t: any) => t.value !== 'nghành đào tạo' && t.value !== 'ngành đào tạo' && t.value !== 'ngành',
+                    )?.length,
+                );
                 if (
                     witResponse['entities']['e_nghanh_dao_tao:e_nghanh_dao_tao']?.filter(
-                        (t: any) => t.value !== 'nghành đào tạo' && t.value !== 'ngành đào tạo',
+                        (t: any) => t.value !== 'nghành đào tạo' && t.value !== 'ngành đào tạo' && t.value !== 'ngành',
                     )?.length
                 ) {
                     const exactSector = await this.trainingSectorModel
