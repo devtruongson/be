@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TrainingSectorService } from './TrainingSectorService';
+import { TrainingSectorService } from './TrainingSector.Service';
 import { TrainingSectorController } from './training-sector.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TrainingSector, TrainingSectorSchema } from 'src/schema/TrainingSectorSchema/TrainingSectors.schema';

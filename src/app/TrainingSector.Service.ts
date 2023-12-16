@@ -51,11 +51,11 @@ export class TrainingSectorService {
 
         switch (witResponse['intents'][0].name) {
             case IModelWitAI.daoTao: {
-                const trainingSector = await this.trainingSectorModel.find({
-                    is_active: true,
-                });
-
-                if (witResponse['entities']['e_nghanh_dao_tao:e_nghanh_dao_tao']) {
+                if (
+                    witResponse['entities']['e_nghanh_dao_tao:e_nghanh_dao_tao']?.filter(
+                        (t: any) => t.value !== 'nghành đào tạo' && t.value !== 'ngành đào tạo',
+                    )?.length
+                ) {
                     const exactSector = await this.trainingSectorModel
                         .find(
                             {
@@ -73,6 +73,7 @@ export class TrainingSectorService {
                         const [result, ...related] = exactSector;
 
                         return {
+                            type: IModelWitAI.daoTao,
                             data: result,
                             related,
                             is_voice: true,
@@ -84,12 +85,17 @@ export class TrainingSectorService {
                         is_active: true,
                     });
                     return {
+                        type: IModelWitAI.diaChi,
                         data,
                         confidence: 0.9,
                     };
                 }
 
+                const trainingSector = await this.trainingSectorModel.find({
+                    is_active: true,
+                });
                 return {
+                    type: IModelWitAI.daoTao,
                     total_count_training_sector: trainingSector.length,
                     data: trainingSector,
                     is_voice: false,
@@ -102,6 +108,7 @@ export class TrainingSectorService {
                     is_active: true,
                 });
                 return {
+                    type: IModelWitAI.diaChi,
                     data,
                     confidence: 1,
                 };

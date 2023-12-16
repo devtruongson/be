@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { TrainingSectorService } from './TrainingSectorService';
+import { TrainingSectorService } from './TrainingSector.Service';
 import { createTrainingSector } from './dto/createTrainingSector.dto';
 import { createLocation } from './dto/createLocation.dto';
 
