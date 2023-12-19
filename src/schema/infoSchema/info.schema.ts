@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { ModelWit } from '../modelSchema/model.schema';
 
-export type CatDocument = HydratedDocument<Info>;
+export type InfoDocument = HydratedDocument<Info>;
 
 @Schema({
     timestamps: true,

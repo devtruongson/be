@@ -1,20 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type ModelDocument = HydratedDocument<ModelWit>;
+export type YearDocument = HydratedDocument<Year>;
 
 @Schema({
     timestamps: true,
 })
-export class ModelWit {
+export class Year {
     @Prop({ type: String, text: true })
     title: string;
 
     @Prop()
-    code_model: string;
-
-    @Prop()
-    name_unix_model: string;
+    code_year: string;
 }
 
-export const ModelWitSchema = SchemaFactory.createForClass(ModelWit);
+export const YearSchema = SchemaFactory.createForClass(Year);

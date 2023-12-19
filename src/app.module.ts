@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TrainingSectorModule } from './trainingSector/training-sector.module';
 import { InfoModule } from './info/info.module';
 import { ModelWitModule } from './model-wit/model-wit.module';
+import { YearModule } from './year/year.module';
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import { ModelWitModule } from './model-wit/model-wit.module';
         TrainingSectorModule,
         InfoModule,
         ModelWitModule,
+        YearModule,
     ],
 })
 export class AppModule {}
