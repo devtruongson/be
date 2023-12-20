@@ -14,17 +14,20 @@ export class Point {
     @Prop({ type: Types.ObjectId, ref: Year.name })
     year: string;
 
-    @Prop({
-        type: String,
-        required: true,
-    })
-    file: {
-        type: string;
-        src: string;
-    };
+    @Prop()
+    file: string;
+
+    @Prop()
+    type: string;
 
     @Prop()
     image_url: string[];
+
+    @Prop()
+    content_mark_down: string;
+
+    @Prop()
+    content_html: string
 }
 
 export const PointSchema = SchemaFactory.createForClass(Point);
