@@ -5,6 +5,8 @@ import { TrainingSectorModule } from './trainingSector/training-sector.module';
 import { InfoModule } from './info/info.module';
 import { ModelWitModule } from './model-wit/model-wit.module';
 import { YearModule } from './year/year.module';
+import { RuntimeAiModule } from './runtime_ai/runtime_ai.module';
+import { PointModule } from './point/point.module';
 
 @Module({
     imports: [
@@ -16,6 +18,8 @@ import { YearModule } from './year/year.module';
         InfoModule,
         ModelWitModule,
         YearModule,
+        RuntimeAiModule,
+        PointModule,
     ],
 })
 export class AppModule {}

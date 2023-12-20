@@ -24,4 +24,14 @@ export class ModelWitService {
     getAllModelWit() {
         return this.witModel.find();
     }
+
+    async getDetailModelWit(code_model: string) {
+        const modelWit = await this.witModel.findOne({
+            code_model: code_model,
+        });
+        if (!modelWit) {
+            throw new BadRequestException('Model Not Found');
+        }
+        return modelWit;
+    }
 }
