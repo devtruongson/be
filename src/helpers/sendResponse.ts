@@ -13,6 +13,7 @@ export default function sendResponse(dataSend: {
         is_table: boolean;
         is_mark_down: boolean;
     };
+    is_point?: boolean;
 }) {
     return {
         code: dataSend.code,
@@ -24,5 +25,6 @@ export default function sendResponse(dataSend: {
         data: dataSend.data,
         is_ai: true,
         related: dataSend.related || null,
+        is_point: dataSend.is_point || false,
     };
 }

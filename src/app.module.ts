@@ -7,6 +7,7 @@ import { ModelWitModule } from './model-wit/model-wit.module';
 import { YearModule } from './year/year.module';
 import { RuntimeAiModule } from './runtime_ai/runtime_ai.module';
 import { PointModule } from './point/point.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import { PointModule } from './point/point.module';
         YearModule,
         RuntimeAiModule,
         PointModule,
+        UploadModule,
     ],
 })
 export class AppModule {}

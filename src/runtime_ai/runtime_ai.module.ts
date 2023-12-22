@@ -7,6 +7,7 @@ import { Year, YearSchema } from 'src/schema/yearSchema/year.schema';
 import { ModelWit, ModelWitSchema } from 'src/schema/modelSchema/model.schema';
 import { TrainingSector, TrainingSectorSchema } from 'src/schema/TrainingSectorSchema/TrainingSectors.schema';
 import { ModelWitService } from 'src/model-wit/model-wit.service';
+import { Point, PointSchema } from 'src/schema/pointSchema/point.schema';
 
 @Module({
     imports: [
@@ -26,6 +27,10 @@ import { ModelWitService } from 'src/model-wit/model-wit.service';
             {
                 name: TrainingSector.name,
                 schema: TrainingSectorSchema,
+            },
+            {
+                name: Point.name,
+                schema: PointSchema,
             },
         ]),
     ],

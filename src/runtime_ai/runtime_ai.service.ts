@@ -8,12 +8,15 @@ import sendResponse from 'src/helpers/sendResponse';
 import { ModelWitService } from 'src/model-wit/model-wit.service';
 import * as natural from 'natural';
 import { TrainingSector } from 'src/schema/TrainingSectorSchema/TrainingSectors.schema';
+import { Point } from 'src/schema/pointSchema/point.schema';
+import { yearData } from 'src/utils/year/year';
 
 @Injectable()
 export class RuntimeAiService {
     constructor(
         @InjectModel(Info.name) private readonly infoModel: Model<Info>,
         @InjectModel(ModelWit.name) private readonly witModel: Model<ModelWit>,
+        @InjectModel(Point.name) private readonly pointModel: Model<Point>,
         @InjectModel(TrainingSector.name) private readonly trainingSectorModel: Model<TrainingSector>,
         private readonly witService: ModelWitService,
     ) {}
@@ -58,6 +61,7 @@ export class RuntimeAiService {
 
     handleIntentsNotLength(wit: MessageResponse) {
         const entitie = this.getObjectWithMaxConfidence(wit.entities);
+        console.log(entitie);
         let trait = '';
         for (const key in wit.traits) {
             if (wit.traits[key]) {
@@ -134,6 +138,44 @@ export class RuntimeAiService {
                     },
                     is_table: true,
                 });
+            }
+
+            case '328206370126312': {
+                const dataHandle = await this.handleModelAndEntitie(wit.entities, modelWit, q);
+
+                const checkPointFollowYear: string[] = [];
+                yearData.forEach((year) => {
+                    const checkYearMatch = q.includes('' + year.value);
+                    if (checkYearMatch) {
+                        checkPointFollowYear.push(String(year.value));
+                    }
+                });
+
+                if (checkPointFollowYear && checkPointFollowYear.length) {
+                    const data = await this.pointModel.find({
+                        year: {
+                            $in: checkPointFollowYear,
+                        },
+                    });
+                    return sendResponse({
+                        match_ai: wit.intents[0].confidence,
+                        match_query: dataHandle.percent_match,
+                        is_mark_down: false,
+                        code: HttpStatus.OK,
+                        data: data,
+                        is_point: true,
+                    });
+                } else {
+                    const data = await this.pointModel.find();
+                    return sendResponse({
+                        match_ai: wit.intents[0].confidence,
+                        match_query: dataHandle.percent_match,
+                        is_mark_down: false,
+                        code: HttpStatus.OK,
+                        data: data,
+                        is_point: true,
+                    });
+                }
             }
 
             default: {
