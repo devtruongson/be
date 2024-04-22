@@ -14,6 +14,7 @@ export default function sendResponse(dataSend: {
         is_mark_down: boolean;
     };
     is_point?: boolean;
+    is_video?: boolean;
 }) {
     return {
         code: dataSend.code,
@@ -26,5 +27,6 @@ export default function sendResponse(dataSend: {
         is_ai: true,
         related: dataSend.related || null,
         is_point: dataSend.is_point || false,
+        is_video: dataSend.is_video || false
     };
 }

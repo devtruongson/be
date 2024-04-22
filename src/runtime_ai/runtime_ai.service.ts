@@ -10,6 +10,8 @@ import * as natural from 'natural';
 import { TrainingSector } from 'src/schema/TrainingSectorSchema/TrainingSectors.schema';
 import { Point } from 'src/schema/pointSchema/point.schema';
 import { yearData } from 'src/utils/year/year';
+import { codeData, instanceDataSector } from 'src/utils/instance';
+import { dataIntro } from 'src/utils/dataFix';
 
 @Injectable()
 export class RuntimeAiService {
@@ -26,9 +28,9 @@ export class RuntimeAiService {
     });
 
     async runtimeAI(q: string) {
+        console.log(q)
         try {
             const witAI = await this.getModelWitAI(q);
-
             switch (witAI.intents.length) {
                 case 0:
                     return this.handleIntentsNotLength(witAI);
@@ -82,6 +84,74 @@ export class RuntimeAiService {
     async handleIntents(wit: MessageResponse, q: string) {
         const modelWit = await this.witService.getDetailModelWit(wit.intents[0].id);
         switch (wit.intents[0].id) {
+            case '1126778305232475' :{ 
+                let instanceData : {
+                    title: string,
+                    keyword: string[],
+                    code: number | string,
+                } | null = null;
+
+                const arrPercent  : {
+                    percent: number,
+                    code: number | string
+                }[]= [];
+                
+                instanceDataSector.forEach((item) =>{
+                    item.keyword.forEach((keyword) =>{
+                        const percent_match = natural.JaroWinklerDistance(keyword, q, {});
+                        console.log(q,keyword)
+                        console.log(percent_match)
+                        if(percent_match > 0.5) {
+                            arrPercent.push({
+                                percent : percent_match,
+                                code: item.code,
+                            })
+                        }
+                    })
+                })
+
+                const maxItemSector =  instanceDataSector.find(item => item.code === arrPercent.find(item => item.percent === Math.max(...arrPercent.map(item => item.percent))).code);
+                instanceData = maxItemSector;
+                
+                if(instanceData) {
+                    let dataRes : any  = null;
+                    
+                    if(instanceData.code === codeData.IDSCHOOL) {
+                        dataRes = await  this.infoModel.findOne({code : codeData.IDSCHOOL})
+                    }else{
+                        dataRes = await this.trainingSectorModel.findOne({
+                            university : instanceData.code
+                        })
+                    }
+
+                    return sendResponse({
+                        match_ai: wit.intents[0].confidence,
+                        match_query: 100,
+                        is_mark_down: true,
+                        code: HttpStatus.OK,
+                        data: dataRes,
+                        is_point: false,
+                        is_video : true
+                    });
+                }
+                break;
+            }
+
+            case '800297008894684' : {
+                return sendResponse({
+                    match_ai: wit.intents[0].confidence,
+                    match_query: 100,
+                    is_mark_down: true,
+                    code: HttpStatus.OK,
+                    data: {
+                        iframe_url: "DuWVzir9Ppk",
+                        description: dataIntro()
+                    },
+                    is_point: false,
+                    is_video : true
+                });
+            }
+            
             case '661966659448580': {
                 const dataHandle = await this.handleModelAndEntitie(wit.entities, modelWit, q);
                 const data = await this.infoModel.findOne({
@@ -142,7 +212,8 @@ export class RuntimeAiService {
 
             case '328206370126312': {
                 const dataHandle = await this.handleModelAndEntitie(wit.entities, modelWit, q);
-
+                console.log("check  kign  L: ", dataHandle)
+                
                 const checkPointFollowYear: string[] = [];
                 yearData.forEach((year) => {
                     const checkYearMatch = q.includes('' + year.value);
@@ -157,14 +228,31 @@ export class RuntimeAiService {
                             $in: checkPointFollowYear,
                         },
                     });
-                    return sendResponse({
-                        match_ai: wit.intents[0].confidence,
-                        match_query: dataHandle.percent_match,
-                        is_mark_down: false,
-                        code: HttpStatus.OK,
-                        data: data,
-                        is_point: true,
-                    });
+
+                    if(data.length > 0) {
+                        return sendResponse({
+                            match_ai: wit.intents[0].confidence,
+                            match_query: dataHandle.percent_match,
+                            is_mark_down: false,
+                            code: HttpStatus.OK,
+                            data: data,
+                            is_point: true,
+                        });
+                    }else{
+                        return sendResponse({
+                            match_ai: wit.intents[0].confidence,
+                            match_query: dataHandle.percent_match,
+                            is_mark_down: true,
+                            code: HttpStatus.OK,
+                            data: `I. Năm bạn hỏi chưa được cập nhật hoặc năm đó chúng tôi vẫn chưa được cập nhật điểm
+                                    (bạn hãy thử tra năm khác có thể từ 2017 đến 2023 chẳng hạn)
+                            `,
+                            is_point: false,
+                            is_video: false
+                        });
+                    }
+                    
+                    
                 } else {
                     const data = await this.pointModel.find();
                     return sendResponse({

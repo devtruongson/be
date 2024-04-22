@@ -41,6 +41,7 @@ export class TrainingSectorService {
 
     async getProcessingSections(q: string) {
         const witResponse = await this.witClient.message(q, {});
+        console.log(witResponse)
 
         if (!witResponse['intents'].length) {
             return {

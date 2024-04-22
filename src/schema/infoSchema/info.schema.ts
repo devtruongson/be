@@ -24,6 +24,9 @@ export class Info {
 
     @Prop({ type: Types.ObjectId, ref: ModelWit.name })
     model: string;
+
+    @Prop()
+    code: string  | number;
 }
 
 export const InfoSchema = SchemaFactory.createForClass(Info);

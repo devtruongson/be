@@ -13,8 +13,6 @@ export class PointController {
         @Body() data: createPointDTO,
         @UploadedFiles() files: { image?: Express.Multer.File[]; file?: Express.Multer.File[] },
     ) {
-        console.log(data);
-        console.log(files);
         return this.pointService.createPoint(data, files);
     }
 }

@@ -28,7 +28,9 @@ export class PointService {
             year: data.year,
             file: files['file[]'][0].filename,
             type: files['file[]'][0].originalname.split('.')[files['file[]'][0].originalname.split('.').length - 1],
-            image_url: files['image[]'].map((item: Express.Multer.File) => item.filename)
+            image_url: files['image[]'].map((item: Express.Multer.File) => item.filename),
+            content_mark_down: data.content_mark_down,
+            content_html:data.content_html
         })
         return newPoint.save()
         
