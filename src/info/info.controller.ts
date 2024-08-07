@@ -1,6 +1,7 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { InfoService } from './info.service';
 import { createInfo } from './dto/createInfo.dto';
+import { updateInfoDTO } from './dto/updateInfo.dto';
 
 @Controller('info')
 export class InfoController {
@@ -22,5 +23,10 @@ export class InfoController {
             throw new BadRequestException('Tham số is_active không hợp lệ!');
         }
         return this.infoService.getDetailInfo(id, is_active);
+    }
+
+    @Put()
+    updateInfo(@Body() data:updateInfoDTO) {
+        return this.infoService.updateDetailInfo(data);
     }
 }

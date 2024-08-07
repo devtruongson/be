@@ -10,6 +10,7 @@ export class RuntimeAiController {
         if (!q) {
             throw new BadRequestException('Tham số q không được để trống!');
         }
+
         return this.runtimeAiService.runtimeAI(q);
     }
 }

@@ -8,6 +8,7 @@ import { YearModule } from './year/year.module';
 import { RuntimeAiModule } from './runtime_ai/runtime_ai.module';
 import { PointModule } from './point/point.module';
 import { UploadModule } from './upload/upload.module';
+import { AudioModule } from './audio/audio.module';
 
 @Module({
     imports: [
@@ -22,6 +23,7 @@ import { UploadModule } from './upload/upload.module';
         RuntimeAiModule,
         PointModule,
         UploadModule,
+        AudioModule,
     ],
 })
 export class AppModule {}

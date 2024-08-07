@@ -10,8 +10,9 @@ import * as natural from 'natural';
 import { TrainingSector } from 'src/schema/TrainingSectorSchema/TrainingSectors.schema';
 import { Point } from 'src/schema/pointSchema/point.schema';
 import { yearData } from 'src/utils/year/year';
-import { codeData, instanceDataSector } from 'src/utils/instance';
+import { codeData, instanceDataSector, ModelWitEnum } from 'src/utils/instance';
 import { dataIntro } from 'src/utils/dataFix';
+import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 
 @Injectable()
 export class RuntimeAiService {
@@ -28,12 +29,11 @@ export class RuntimeAiService {
     });
 
     async runtimeAI(q: string) {
-        console.log(q)
         try {
             const witAI = await this.getModelWitAI(q);
             switch (witAI.intents.length) {
                 case 0:
-                    return this.handleIntentsNotLength(witAI);
+                    return this.handleIntentsNotLength();
                 case 1:
                     return this.handleIntents(witAI, q);
                 default:
@@ -61,67 +61,67 @@ export class RuntimeAiService {
         return witResponse;
     }
 
-    handleIntentsNotLength(wit: MessageResponse) {
-        const entitie = this.getObjectWithMaxConfidence(wit.entities);
-        console.log(entitie);
-        let trait = '';
-        for (const key in wit.traits) {
-            if (wit.traits[key]) {
-                wit.traits[key].map((item: any) => {
-                    trait += item.value;
-                });
-            }
-        }
+    handleIntentsNotLength() {
         return sendResponse({
             code: HttpStatus.OK,
             msg: 'ok',
-            data: trait,
+            data: null,
             match_ai: 0,
             match_query: 0,
+            is_unknown: true,
         });
     }
 
     async handleIntents(wit: MessageResponse, q: string) {
         const modelWit = await this.witService.getDetailModelWit(wit.intents[0].id);
         switch (wit.intents[0].id) {
-            case '1126778305232475' :{ 
-                let instanceData : {
-                    title: string,
-                    keyword: string[],
-                    code: number | string,
+            case ModelWitEnum.i_thong_tin_khoa: {
+                let instanceData: {
+                    title: string;
+                    keyword: string[];
+                    code: number | string;
                 } | null = null;
 
-                const arrPercent  : {
-                    percent: number,
-                    code: number | string
-                }[]= [];
-                
-                instanceDataSector.forEach((item) =>{
-                    item.keyword.forEach((keyword) =>{
-                        const percent_match = natural.JaroWinklerDistance(keyword, q, {});
-                        console.log(q,keyword)
-                        console.log(percent_match)
-                        if(percent_match > 0.5) {
-                            arrPercent.push({
-                                percent : percent_match,
-                                code: item.code,
-                            })
-                        }
-                    })
-                })
+                const arrPercent: {
+                    percent: number;
+                    code: number | string;
+                }[] = [];
 
-                const maxItemSector =  instanceDataSector.find(item => item.code === arrPercent.find(item => item.percent === Math.max(...arrPercent.map(item => item.percent))).code);
+                q = q.split('về')[1];
+                instanceDataSector.forEach((item) => {
+                    item.keyword.forEach((keyword) => {
+                        const percent_match = natural.JaroWinklerDistance(
+                            keyword.toLocaleLowerCase(),
+                            q.toLocaleLowerCase(),
+                            {},
+                        );
+                        console.log(q, keyword);
+                        console.log(percent_match);
+                        if (percent_match > 0.5) {
+                            arrPercent.push({
+                                percent: percent_match,
+                                code: item.code,
+                            });
+                        }
+                    });
+                });
+
+                const maxItemSector = instanceDataSector.find(
+                    (item) =>
+                        item.code ===
+                        arrPercent.find((item) => item.percent === Math.max(...arrPercent.map((item) => item.percent)))
+                            .code,
+                );
                 instanceData = maxItemSector;
-                
-                if(instanceData) {
-                    let dataRes : any  = null;
-                    
-                    if(instanceData.code === codeData.IDSCHOOL) {
-                        dataRes = await  this.infoModel.findOne({code : codeData.IDSCHOOL})
-                    }else{
+
+                if (instanceData) {
+                    let dataRes: any = null;
+                    if (instanceData.code === codeData.IDSCHOOL) {
+                        dataRes = await this.infoModel.findOne({ code: codeData.IDSCHOOL });
+                    } else {
                         dataRes = await this.trainingSectorModel.findOne({
-                            university : instanceData.code
-                        })
+                            university: instanceData.code,
+                        });
                     }
 
                     return sendResponse({
@@ -131,28 +131,28 @@ export class RuntimeAiService {
                         code: HttpStatus.OK,
                         data: dataRes,
                         is_point: false,
-                        is_video : true
+                        is_video: true,
                     });
                 }
                 break;
             }
 
-            case '800297008894684' : {
+            case ModelWitEnum.i_co_so_vat_chat: {
                 return sendResponse({
                     match_ai: wit.intents[0].confidence,
                     match_query: 100,
                     is_mark_down: true,
                     code: HttpStatus.OK,
                     data: {
-                        iframe_url: "DuWVzir9Ppk",
-                        description: dataIntro()
+                        iframe_url: 'DuWVzir9Ppk',
+                        description: dataIntro(),
                     },
                     is_point: false,
-                    is_video : true
+                    is_video: true,
                 });
             }
-            
-            case '661966659448580': {
+
+            case ModelWitEnum.i_ma_truong_xet_tuyen: {
                 const dataHandle = await this.handleModelAndEntitie(wit.entities, modelWit, q);
                 const data = await this.infoModel.findOne({
                     model: dataHandle.model?.code_model || modelWit.code_model,
@@ -165,7 +165,7 @@ export class RuntimeAiService {
                     data,
                 });
             }
-            case '377654348051944': {
+            case ModelWitEnum.i_co_so: {
                 const dataHandle = await this.handleModelAndEntitie(wit.entities, modelWit, q);
                 const data = await this.infoModel.findOne({
                     model: dataHandle.model?.code_model || modelWit.code_model,
@@ -179,7 +179,7 @@ export class RuntimeAiService {
                 });
             }
 
-            case '1034863804387853': {
+            case ModelWitEnum.i_dia_chi: {
                 const dataHandle = await this.handleModelAndEntitie(wit.entities, modelWit, q);
                 const data = await this.infoModel.findOne({
                     model: dataHandle.model?.code_model || modelWit.code_model,
@@ -193,7 +193,7 @@ export class RuntimeAiService {
                 });
             }
 
-            case '1042106483707534': {
+            case ModelWitEnum.i_dao_tao: {
                 const dataHandle = await this.handleModelAndEntitie(wit.entities, modelWit, q);
                 const trainingSector = await this.trainingSectorModel.find({
                     is_active: true,
@@ -210,10 +210,10 @@ export class RuntimeAiService {
                 });
             }
 
-            case '328206370126312': {
+            case ModelWitEnum.i_point: {
                 const dataHandle = await this.handleModelAndEntitie(wit.entities, modelWit, q);
-                console.log("check  kign  L: ", dataHandle)
-                
+                console.log('check  kign  L: ', dataHandle);
+
                 const checkPointFollowYear: string[] = [];
                 yearData.forEach((year) => {
                     const checkYearMatch = q.includes('' + year.value);
@@ -229,7 +229,7 @@ export class RuntimeAiService {
                         },
                     });
 
-                    if(data.length > 0) {
+                    if (data.length > 0) {
                         return sendResponse({
                             match_ai: wit.intents[0].confidence,
                             match_query: dataHandle.percent_match,
@@ -238,7 +238,7 @@ export class RuntimeAiService {
                             data: data,
                             is_point: true,
                         });
-                    }else{
+                    } else {
                         return sendResponse({
                             match_ai: wit.intents[0].confidence,
                             match_query: dataHandle.percent_match,
@@ -248,11 +248,9 @@ export class RuntimeAiService {
                                     (bạn hãy thử tra năm khác có thể từ 2017 đến 2023 chẳng hạn)
                             `,
                             is_point: false,
-                            is_video: false
+                            is_video: false,
                         });
                     }
-                    
-                    
                 } else {
                     const data = await this.pointModel.find();
                     return sendResponse({

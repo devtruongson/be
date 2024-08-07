@@ -15,6 +15,7 @@ export default function sendResponse(dataSend: {
     };
     is_point?: boolean;
     is_video?: boolean;
+    is_unknown?: boolean;
 }) {
     return {
         code: dataSend.code,
@@ -27,6 +28,7 @@ export default function sendResponse(dataSend: {
         is_ai: true,
         related: dataSend.related || null,
         is_point: dataSend.is_point || false,
-        is_video: dataSend.is_video || false
+        is_video: dataSend.is_video || false,
+        is_unknown: dataSend.is_unknown || false,
     };
 }

@@ -25,8 +25,11 @@ export class Info {
     @Prop({ type: Types.ObjectId, ref: ModelWit.name })
     model: string;
 
-    @Prop()
-    code: string  | number;
+    @Prop({ type : String, required: false })
+    code: string;
+
+    @Prop({ type : String, required: false })
+    iframe_url: string;
 }
 
 export const InfoSchema = SchemaFactory.createForClass(Info);

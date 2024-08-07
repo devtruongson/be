@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Info } from 'src/schema/infoSchema/info.schema';
 import { createInfo } from './dto/createInfo.dto';
+import { updateInfoDTO } from './dto/updateInfo.dto';
 
 @Injectable()
 export class InfoService {
@@ -25,5 +26,19 @@ export class InfoService {
                 is_active: JSON.parse(is_active),
             })
             .populate('model');
+    }
+
+    async updateDetailInfo(data: updateInfoDTO) {
+        const doc = await this.infoModel.findByIdAndUpdate(
+            data._id,
+            {
+                ...data,
+            },
+            {
+                new: true,
+            },
+        );
+
+        return doc;
     }
 }
